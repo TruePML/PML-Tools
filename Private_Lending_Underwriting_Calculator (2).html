@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Private Lending Underwriting Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+        
+        .section {
+            background: #f7fafc;
+            padding: 24px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .section h2 {
+            color: #2d3748;
+            font-size: 18px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .input-group {
+            margin-bottom: 16px;
+        }
+        
+        .input-group label {
+            display: block;
+            color: #4a5568;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.2s;
+        }
+        
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .result-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .result-box h3 {
+            color: #2d3748;
+            font-size: 14px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .result-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .result-label {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 4px;
+        }
+        
+        .risk-indicator {
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-align: center;
+            margin-top: 16px;
+        }
+        
+        .risk-low {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .risk-medium {
+            background: #feebc8;
+            color: #744210;
+        }
+        
+        .risk-high {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+        
+        .metric-card {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            text-align: center;
+        }
+        
+        .metric-card h4 {
+            font-size: 12px;
+            color: #718096;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        
+        .metric-card .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2d3748;
+        }
+        
+        .button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            margin-top: 12px;
+        }
+        
+        .button:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .recommendations {
+            background: #edf2f7;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .recommendations h4 {
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .recommendations ul {
+            margin-left: 20px;
+        }
+        
+        .recommendations li {
+            color: #4a5568;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏦 Private Lending Underwriting Calculator</h1>
+            <p>Comprehensive Deal Analysis Tool for First & Second Position Loans</p>
+        </div>
+        
+        <div class="content">
+            <!-- Property Information -->
+            <div class="section">
+                <h2>📍 Property Information</h2>
+                
+                <div class="input-group">
+                    <label>Property Address</label>
+                    <input type="text" id="address" placeholder="123 Main St, City, State">
+                </div>
+                
+                <div class="input-group">
+                    <label>Current Property Value (As-Is)</label>
+                    <input type="number" id="currentValue" placeholder="200000" value="200000">
+                </div>
+                
+                <div class="input-group" id="firstPositionGroup" style="display:none;">
+                    <label>Existing First Position or Expected Hard Money Loan</label>
+                    <input type="number" id="firstPositionAmount" placeholder="150000" value="0">
+                </div>
+                
+                <div class="input-group">
+                    <label>After Repair Value (ARV)</label>
+                    <input type="number" id="arv" placeholder="300000" value="300000">
+                </div>
+                
+                <div class="input-group">
+                    <label>Estimated Repair Costs</label>
+                    <input type="number" id="repairCosts" placeholder="50000" value="50000">
+                </div>
+                
+                <div class="input-group">
+                    <label>Property Type</label>
+                    <select id="propertyType">
+                        <option value="sfh">Single Family Home</option>
+                        <option value="multi">2-4 Unit Multi-Family</option>
+                        <option value="condo">Condo/Townhome</option>
+                        <option value="commercial">Commercial</option>
+                        <option value="land">Land</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Loan Structure -->
+            <div class="section">
+                <h2>💰 Loan Structure</h2>
+                
+                <div class="input-group">
+                    <label>Lien Position</label>
+                    <select id="lienPosition" onchange="toggleFirstPosition()">
+                        <option value="first">First Position</option>
+                        <option value="second">Second Position</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label>Your Loan Amount</label>
+                    <input type="number" id="loanAmount" placeholder="140000" value="140000">
+                </div>
+                
+                <div class="input-group">
+                    <label>Interest Rate (%)</label>
+                    <input type="number" id="interestRate" placeholder="12" value="12" step="0.25">
+                </div>
+                
+                <div class="input-group">
+                    <label>Points (% of loan)</label>
+                    <input type="number" id="points" placeholder="2" value="2" step="0.25">
+                </div>
+                
+                <div class="input-group">
+                    <label>Loan Term (months)</label>
+                    <input type="number" id="loanTerm" placeholder="12" value="12">
+                </div>
+            </div>
+            
+            <!-- Key Metrics -->
+            <div class="section full-width">
+                <h2>📊 Key Metrics & Analysis</h2>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card" id="ltv-card">
+                        <h4>LTV (Loan-to-Value)</h4>
+                        <div class="value" id="ltvValue">--</div>
+                        <div class="result-label" id="ltvLabel">Based on current value</div>
+                    </div>
+                    
+                    <div class="metric-card" id="ltv-arv-card">
+                        <h4>LTV Based on ARV</h4>
+                        <div class="value" id="ltvArvValue">--</div>
+                        <div class="result-label">Conservative metric</div>
+                    </div>
+                    
+                    <div class="metric-card" id="cltv-card" style="display:none;">
+                        <h4>CLTV (Current Value)</h4>
+                        <div class="value" id="cltvValue">--</div>
+                        <div class="result-label">Worst-case safety net</div>
+                    </div>
+                    
+                    <div class="metric-card" id="cltv-arv-card" style="display:none;">
+                        <h4>CLTV (Based on ARV)</h4>
+                        <div class="value" id="cltvArvValue">--</div>
+                        <div class="result-label">Includes repair costs — must be ≤85%</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <h4>Points Income</h4>
+                        <div class="value" id="pointsIncome">--</div>
+                        <div class="result-label">Upfront earnings</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <h4>Interest Income</h4>
+                        <div class="value" id="interestIncome">--</div>
+                        <div class="result-label">Over loan term</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <h4>Total Return</h4>
+                        <div class="value" id="totalReturn">--</div>
+                        <div class="result-label">Annualized ROI</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <h4>Equity Cushion</h4>
+                        <div class="value" id="equityCushion">--</div>
+                        <div class="result-label">Protection buffer</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <h4>Break-Even Sale Price</h4>
+                        <div class="value" id="breakEven">--</div>
+                        <div class="result-label">If you have to foreclose</div>
+                    </div>
+                </div>
+                
+                <div id="riskIndicator" class="risk-indicator"></div>
+                
+                <div id="recommendations" class="recommendations"></div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;">
+                    <button class="button" onclick="calculate()">🔄 Recalculate</button>
+                    <button class="button" onclick="clearAll()" style="background: #718096;">🗑️ Clear All</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function toggleFirstPosition() {
+            const position = document.getElementById('lienPosition').value;
+            const firstPosGroup = document.getElementById('firstPositionGroup');
+            const cltvCard = document.getElementById('cltv-card');
+            const cltvArvCard = document.getElementById('cltv-arv-card');
+            const ltvCard = document.getElementById('ltv-card');
+            const ltvArvCard = document.getElementById('ltv-arv-card');
+            
+            if (position === 'second') {
+                firstPosGroup.style.display = 'block';
+                cltvCard.style.display = 'block';
+                cltvArvCard.style.display = 'block';
+                // Hide regular LTV cards for second position
+                ltvCard.style.display = 'none';
+                ltvArvCard.style.display = 'none';
+            } else {
+                firstPosGroup.style.display = 'none';
+                cltvCard.style.display = 'none';
+                cltvArvCard.style.display = 'none';
+                // Show regular LTV cards for first position
+                ltvCard.style.display = 'block';
+                ltvArvCard.style.display = 'block';
+                document.getElementById('firstPositionAmount').value = '0';
+            }
+            calculate();
+        }
+        
+        function clearAll() {
+            // Clear all input fields
+            document.getElementById('address').value = '';
+            document.getElementById('currentValue').value = '';
+            document.getElementById('arv').value = '';
+            document.getElementById('repairCosts').value = '';
+            document.getElementById('propertyType').value = 'sfh';
+            document.getElementById('loanAmount').value = '';
+            document.getElementById('lienPosition').value = 'first';
+            document.getElementById('firstPositionAmount').value = '0';
+            document.getElementById('interestRate').value = '';
+            document.getElementById('points').value = '';
+            document.getElementById('loanTerm').value = '';
+            
+            // Reset to first position view
+            toggleFirstPosition();
+            
+            // Clear all result displays
+            document.getElementById('ltvValue').textContent = '--';
+            document.getElementById('ltvArvValue').textContent = '--';
+            document.getElementById('cltvValue').textContent = '--';
+            document.getElementById('cltvArvValue').textContent = '--';
+            document.getElementById('pointsIncome').textContent = '--';
+            document.getElementById('interestIncome').textContent = '--';
+            document.getElementById('totalReturn').textContent = '--';
+            document.getElementById('equityCushion').textContent = '--';
+            document.getElementById('breakEven').textContent = '--';
+            
+            // Clear risk indicator and recommendations
+            document.getElementById('riskIndicator').textContent = '';
+            document.getElementById('riskIndicator').className = 'risk-indicator';
+            document.getElementById('recommendations').innerHTML = '';
+            document.getElementById('recommendations').style.display = 'none';
+        }
+        
+        function formatCurrency(value) {
+            return '$' + Math.round(value).toLocaleString();
+        }
+        
+        function formatPercent(value) {
+            return value.toFixed(1) + '%';
+        }
+        
+        function calculate() {
+            // Get inputs
+            const currentValue = parseFloat(document.getElementById('currentValue').value) || 0;
+            const arv = parseFloat(document.getElementById('arv').value) || 0;
+            const repairCosts = parseFloat(document.getElementById('repairCosts').value) || 0;
+            const loanAmount = parseFloat(document.getElementById('loanAmount').value) || 0;
+            const firstPositionAmount = parseFloat(document.getElementById('firstPositionAmount').value) || 0;
+            const interestRate = parseFloat(document.getElementById('interestRate').value) || 0;
+            const points = parseFloat(document.getElementById('points').value) || 0;
+            const loanTerm = parseFloat(document.getElementById('loanTerm').value) || 12;
+            const lienPosition = document.getElementById('lienPosition').value;
+            
+            // Calculate LTV
+            const ltv = (loanAmount / currentValue) * 100;
+            const ltvArv = (loanAmount / arv) * 100;
+            
+            // Calculate CLTV (if second position)
+            const totalLoans = lienPosition === 'second' ? loanAmount + firstPositionAmount : loanAmount;
+            const cltv = (totalLoans / currentValue) * 100;
+            const cltvArv = ((totalLoans + repairCosts) / arv) * 100;
+            
+            // Calculate income
+            const pointsIncome = loanAmount * (points / 100);
+            const interestIncome = loanAmount * (interestRate / 100) * (loanTerm / 12);
+            const totalIncome = pointsIncome + interestIncome;
+            
+            // Calculate annualized return
+            const annualizedReturn = (totalIncome / loanAmount) * (12 / loanTerm) * 100;
+            
+            // Calculate equity cushion
+            const equityCushion = currentValue - totalLoans;
+            const equityCushionPercent = (equityCushion / currentValue) * 100;
+            
+            // Calculate break-even (assume 10% selling costs)
+            const sellingCosts = 0.10;
+            const breakEvenPrice = totalLoans / (1 - sellingCosts);
+            
+            // Update display - only show relevant metrics based on position
+            if (lienPosition === 'first') {
+                document.getElementById('ltvValue').textContent = formatPercent(ltv);
+                document.getElementById('ltvArvValue').textContent = formatPercent(ltvArv);
+            } else {
+                // For second position, show CLTV metrics
+                document.getElementById('cltvValue').textContent = formatPercent(cltv);
+                const cltvArvCard = document.getElementById('cltv-arv-card');
+                if (cltvArv > 85) {
+                    document.getElementById('cltvArvValue').textContent = formatPercent(cltvArv);
+                    document.getElementById('cltvArvValue').style.color = '#e53e3e';
+                    let flagEl = cltvArvCard.querySelector('.red-flag-label');
+                    if (!flagEl) {
+                        flagEl = document.createElement('div');
+                        flagEl.className = 'red-flag-label';
+                        flagEl.style.cssText = 'color:#e53e3e;font-weight:700;font-size:15px;margin-top:6px;';
+                        cltvArvCard.appendChild(flagEl);
+                    }
+                    flagEl.textContent = '🚩 RED FLAG — Exceeds 85%';
+                } else {
+                    document.getElementById('cltvArvValue').textContent = formatPercent(cltvArv);
+                    document.getElementById('cltvArvValue').style.color = '';
+                    const flagEl = cltvArvCard.querySelector('.red-flag-label');
+                    if (flagEl) flagEl.remove();
+                }
+            }
+            
+            document.getElementById('pointsIncome').textContent = formatCurrency(pointsIncome);
+            document.getElementById('interestIncome').textContent = formatCurrency(interestIncome);
+            document.getElementById('totalReturn').textContent = formatPercent(annualizedReturn);
+            document.getElementById('equityCushion').textContent = formatCurrency(equityCushion);
+            document.getElementById('breakEven').textContent = formatCurrency(breakEvenPrice);
+            
+            // Update labels
+            const relevantLtv = lienPosition === 'second' ? cltv : ltv;
+            document.getElementById('ltvLabel').textContent = `Based on ${lienPosition === 'first' ? 'current' : 'combined'} value`;
+            
+            // Risk assessment
+            let riskLevel = 'low';
+            let riskText = '';
+            let riskClass = 'risk-low';
+            let recommendations = [];
+            
+            if (lienPosition === 'first') {
+                if (ltv <= 65) {
+                    riskLevel = 'low';
+                    riskText = '✅ LOW RISK - Excellent equity cushion';
+                    riskClass = 'risk-low';
+                } else if (ltv <= 75) {
+                    riskLevel = 'medium';
+                    riskText = '⚠️ MODERATE RISK - Acceptable LTV range';
+                    riskClass = 'risk-medium';
+                    recommendations.push('Consider slightly higher rate or lower loan amount');
+                } else {
+                    riskLevel = 'high';
+                    riskText = '🚨 HIGH RISK - LTV above recommended threshold';
+                    riskClass = 'risk-high';
+                    recommendations.push('REDUCE loan amount to get LTV below 75%');
+                    recommendations.push('Require borrower to bring more down payment');
+                }
+            } else {
+                // Second position - evaluate BOTH current CLTV and ARV-based CLTV
+                const currentCLTV = cltv;
+                const arvCLTV = cltvArv;
+                
+                // Both metrics matter for second position
+                if (currentCLTV <= 85 && arvCLTV <= 70) {
+                    riskLevel = 'low';
+                    riskText = '✅ LOW RISK - Both current and ARV CLTV are strong';
+                    riskClass = 'risk-low';
+                    recommendations.push('Suggested pricing: 12-13% interest + 0-1 points');
+                } else if (currentCLTV <= 90 && arvCLTV <= 75) {
+                    riskLevel = 'medium';
+                    riskText = '⚠️ MODERATE RISK - Monitor closely, verify borrower experience';
+                    riskClass = 'risk-medium';
+                    recommendations.push('Verify first position is current on payments');
+                    recommendations.push('Require proof of borrower track record (5+ successful projects)');
+                    recommendations.push('Consider intercreditor agreement with first position lender');
+                    recommendations.push('Suggested pricing: 13-14% interest + 2 points');
+                } else if (currentCLTV <= 95 && arvCLTV <= 70) {
+                    riskLevel = 'medium';
+                    riskText = '⚠️ MODERATE-HIGH RISK - Current CLTV is tight, leaning on ARV';
+                    riskClass = 'risk-medium';
+                    recommendations.push('ONLY approve for borrowers with 10+ successful flips');
+                    recommendations.push('Require 20%+ reserves beyond all loans');
+                    recommendations.push('Suggested pricing: 14-15% interest + 3-4 points');
+                    recommendations.push('Verify contractor is vetted and reliable');
+                } else if (currentCLTV > 95 && arvCLTV <= 70) {
+                    riskLevel = 'high';
+                    riskText = '🚨 HIGH RISK - Current CLTV over 95%, extreme reliance on project completion';
+                    riskClass = 'risk-high';
+                    recommendations.push('Current CLTV is dangerously high - you are underwater if project fails');
+                    recommendations.push('Consider lending only PARTIAL amount to reduce current CLTV');
+                    recommendations.push('ONLY for A+ borrowers with proven track record');
+                    recommendations.push('Suggested pricing: 15% interest + points TBD (consult attorney on max rate for your state)');
+                } else {
+                    riskLevel = 'high';
+                    riskText = '🚨 HIGH RISK - CLTV too high on both metrics';
+                    riskClass = 'risk-high';
+                    recommendations.push('DECLINE or significantly reduce loan amount');
+                    recommendations.push('Not enough equity cushion to protect second position');
+                    recommendations.push('If current CLTV over 100%, you cannot recover if project fails immediately');
+                }
+            }
+            
+            // Additional recommendations
+            if (lienPosition === 'second' && cltv > 90) {
+                recommendations.push('⚠️ For second position at this CLTV: Current value = safety net, ARV = success scenario');
+                recommendations.push('Prioritize current value CLTV for new/risky borrowers, ARV CLTV for proven borrowers');
+            }
+            
+            if (annualizedReturn < 12) {
+                recommendations.push('Consider increasing rate or points - return below market');
+            }
+            
+            // Add usury law warning
+            if (interestRate > 15 || (lienPosition === 'first' && interestRate > 14)) {
+                recommendations.push('⚠️ USURY WARNING: Check your state\'s usury laws before charging rates above 15%');
+                recommendations.push('Ensure loan is properly documented as BUSINESS PURPOSE to avoid consumer lending laws');
+                recommendations.push('Consult with attorney - some states cap business loans at 18% or lower');
+            }
+            
+            if (breakEvenPrice > currentValue * 0.9) {
+                recommendations.push('Very tight margins - property must hold value');
+            }
+            
+            if (repairCosts > currentValue * 0.3) {
+                recommendations.push('Heavy rehab project - verify contractor experience');
+            }
+            
+            // Display risk
+            const riskDiv = document.getElementById('riskIndicator');
+            riskDiv.textContent = riskText;
+            riskDiv.className = 'risk-indicator ' + riskClass;
+            
+            // Display recommendations
+            const recsDiv = document.getElementById('recommendations');
+            if (recommendations.length > 0) {
+                let html = '<h4>📋 Recommendations:</h4><ul>';
+                recommendations.forEach(rec => {
+                    html += `<li>${rec}</li>`;
+                });
+                html += '</ul>';
+                recsDiv.innerHTML = html;
+                recsDiv.style.display = 'block';
+            } else {
+                recsDiv.innerHTML = '<h4>✅ Deal looks solid based on these numbers!</h4>';
+                recsDiv.style.display = 'block';
+            }
+        }
+        
+        // Auto-calculate on input change
+        document.querySelectorAll('input, select').forEach(element => {
+            element.addEventListener('input', calculate);
+            element.addEventListener('change', calculate);
+        });
+        
+        // Initial calculation
+        calculate();
+    </script>
+</body>
+</html>
